@@ -11,6 +11,7 @@ import rehypeSlug from 'rehype-slug';
 export default defineConfig({
   plugins: [
     babel({
+      presets: ['@babel/preset-typescript'],
       plugins: ['module:@preact/signals-react-transform'],
     }),
     react(),

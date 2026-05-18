@@ -1,5 +1,7 @@
-import { App } from '.';
+import App from 'app';
+
 import { render } from './app.config';
-import './index.css';
+
+import 'styles.css';
 
 render(<App />);

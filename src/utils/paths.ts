@@ -1,0 +1,16 @@
+export const PATHS = {
+  login:          '/login',
+  home:           '/',
+  projects:       '/projects',
+  projectDetail:  '/projects/:id',
+  wp:             '/wp',
+  brand:          '/brand',
+  team:           '/team',
+  teamMember:     '/team/:id',
+  references:     '/references',
+  skills:         '/skills',
+  skillDetail:    '/skills/:id',
+  logoCustomizer: '/tools/logo-customizer',
+  copywriting:    '/tools/copywriting',
+  test:           '/tools/test',
+};

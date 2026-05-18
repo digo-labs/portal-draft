@@ -1,0 +1,52 @@
+---
+title: Meeting Summarizer
+subtitle: Structured summaries with action items from your meetings.
+skill: meeting-summarizer
+---
+
+<SkillPreview name="meeting-summarizer-preview" />
+
+## Overview
+
+The Meeting Summarizer extracts structured summaries from meeting notes or transcripts. Paste your raw notes and get organized output with decisions made, action items, owners, and deadlines.
+
+## How It Works
+
+1. **Paste notes or transcript** — Drop in your raw meeting content.
+2. **Select meeting type** — Choose from kickoff, status update, creative review, client call, or retrospective.
+3. **Generate** — The AI creates a structured summary.
+4. **Share** — Copy the summary to share with your team.
+
+## Output Format
+
+Every summary includes:
+
+- **Attendees** — Who was in the meeting
+- **Key Decisions** — What was decided
+- **Discussion Points** — Main topics covered
+- **Action Items** — Tasks with owners and due dates
+- **Open Questions** — Unresolved items that need follow-up
+- **Next Steps** — What happens next
+
+## Tips
+
+- Include speaker names in your notes for better action item assignment
+- The more detail in your notes, the better the summary
+- Use for both internal team meetings and client calls
+
+## Inputs
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `transcript` | `string` | Meeting notes or transcript text |
+| `format` | `summary \| action-items \| both` | Output format |
+
+## Metadata
+
+| | |
+|---|---|
+| ID | s4 |
+| Slug | meeting-summarizer |
+| Status | Coming Soon |
+| Category | AI Tools |
+| Version | 0.1.0 |
