@@ -1,0 +1,64 @@
+{
+  "name": "app-template",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "provision": "./scripts/provision.sh",
+    "db:push": "node scripts/create-schema.js && drizzle-kit push && node scripts/refresh-schemas.js",
+    "update:digo-labs": "npm install --prefer-online @digo-labs/app@latest @digo-labs/common@latest @digo-labs/services@latest @digo-labs/ui@latest"
+  },
+  "overrides": {
+    "drizzle-kit": {
+      "esbuild": "0.27.2"
+    }
+  },
+  "dependencies": {
+    "@digo-labs/app": "^0.1.7",
+    "@digo-labs/common": "^0.1.8",
+    "@digo-labs/services": "^0.1.8",
+    "@digo-labs/ui": "^0.1.9",
+    "@mdx-js/react": "^3.1.1",
+    "@preact/signals-react": "^3.10.1",
+    "drizzle-orm": "^0.45.2",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@mdx-js/rollup": "^3.1.1",
+    "@preact/signals-react-transform": "^0.8.1",
+    "@rolldown/plugin-babel": "^0.2.3",
+    "@stylistic/eslint-plugin": "^5.10.0",
+    "@tailwindcss/vite": "^4.3.0",
+    "@types/mdx": "^2.0.13",
+    "@types/node": "^25.9.0",
+    "@types/pg": "^8.20.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.2",
+    "dotenv": "^17.2.3",
+    "drizzle-kit": "^0.31.10",
+    "eslint": "^10.4.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17.5.0",
+    "pg": "^8.21.0",
+    "prettier": "3.8.3",
+    "prettier-plugin-tailwindcss": "0.8.0",
+    "rehype-slug": "^6.0.0",
+    "remark-frontmatter": "^5.0.0",
+    "remark-gfm": "^4.0.1",
+    "remark-mdx-frontmatter": "^5.2.0",
+    "tailwindcss": "^4.3.0",
+    "typescript": "~6.0.2",
+    "typescript-eslint": "^8.59.3",
+    "vite": "^8.0.13"
+  }
+}
