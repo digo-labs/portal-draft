@@ -1,7 +1,7 @@
 import { defineDatabases } from '@digo-labs/app';
 import { text, uuid } from 'drizzle-orm/pg-core';
 
-export const { tables, databases } = defineDatabases('app_template', {
+export const { tables, databases } = defineDatabases('portal_draft', {
   items: {
     id: uuid('id').primaryKey().defaultRandom(),
     name: text('name').notNull(),

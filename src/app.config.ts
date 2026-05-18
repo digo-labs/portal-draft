@@ -9,7 +9,7 @@ export interface Channels {
 }
 
 export const { services, render } = defineApp({
-  name: 'app-template',
+  name: 'portal-draft',
   preset: defaultPreset,
   mode: 'dark',
   auth: { project: 'monorepo' },
@@ -17,6 +17,6 @@ export const { services, render } = defineApp({
   services: () => ({
     ...databases,
     styles: new Database<StyleRecord>('styles'),
-    websockets: new Websockets<Channels>({ app: 'app-template', url: import.meta.env.VITE_MONOREPO_WS_URL }),
+    websockets: new Websockets<Channels>({ app: 'portal-draft', url: import.meta.env.VITE_MONOREPO_WS_URL }),
   }),
 });
