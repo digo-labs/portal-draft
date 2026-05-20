@@ -165,10 +165,6 @@ APP_ID=$(aws amplify list-apps --region "$AWS_REGION" --query "apps[?name=='$APP
 if [ -n "$APP_ID" ] && [ "$APP_ID" != "None" ]; then
   echo "↷ Amplify app '$APP_NAME' exists (id $APP_ID); leaving it alone."
 else
-  # Fetch GitHub PAT — only when creating a new app; never stored on disk.
-  # Amplify's create-app API requires --access-token even though the GitHub App
-  # is installed in the org; the token is used once to validate the create call
-  # and then discarded by AWS (ongoing webhooks use the App, not this token).
   echo "→ Fetching GitHub PAT from AWS Secrets Manager..."
   if ! GITHUB_PAT=$(aws secretsmanager get-secret-value \
         --secret-id monorepo/github-pat \
@@ -210,8 +206,6 @@ else
 fi
 
 # ---- 4. Domain association ----
-# Amplify auto-creates the Route 53 CNAME for $SUBDOMAIN.$HOSTED_ZONE_NAME when
-# the hosted zone is in this account. No manual route53 update needed.
 if aws amplify get-domain-association --app-id "$APP_ID" --domain-name "$HOSTED_ZONE_NAME" --region "$AWS_REGION" >/dev/null 2>&1; then
   echo "↷ Domain association for $HOSTED_ZONE_NAME exists; leaving it alone."
 else
