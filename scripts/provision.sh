@@ -9,8 +9,8 @@ set -euo pipefail
 #   • S3 bucket: <app-name>-storage (private, SSE-S3)
 #   • Amplify app named <app-name>, connected to this repo's GitHub origin
 #   • Amplify 'main' branch with auto-build enabled
-#   • Domain association: <subdomain>.digo-labs.com → branch 'main'
-#   • Route 53 CNAME pointing the subdomain at Amplify's CloudFront distribution
+#   • Domain association + auto Route 53 CNAME (subdomain → CloudFront)
+#     Amplify auto-creates the Route 53 record when the hosted zone is in this account.
 #   • Postgres schema + tables in shared RDS (via 'npm run db:push')
 #
 # Prerequisites:
@@ -31,7 +31,6 @@ set -euo pipefail
 readonly AWS_REGION="us-east-1"
 readonly AWS_ACCOUNT="954039860919"
 readonly HOSTED_ZONE_NAME="digo-labs.com"
-readonly HOSTED_ZONE_ID="Z0651316JECUZ28TP436"
 readonly CERT_ARN="arn:aws:acm:us-east-1:954039860919:certificate/17f20f17-350c-4c3e-8c54-2f7717c668cd"
 
 # ---- Args ----
@@ -166,6 +165,10 @@ APP_ID=$(aws amplify list-apps --region "$AWS_REGION" --query "apps[?name=='$APP
 if [ -n "$APP_ID" ] && [ "$APP_ID" != "None" ]; then
   echo "↷ Amplify app '$APP_NAME' exists (id $APP_ID); leaving it alone."
 else
+  # Fetch GitHub PAT — only when creating a new app; never stored on disk.
+  # Amplify's create-app API requires --access-token even though the GitHub App
+  # is installed in the org; the token is used once to validate the create call
+  # and then discarded by AWS (ongoing webhooks use the App, not this token).
   echo "→ Fetching GitHub PAT from AWS Secrets Manager..."
   if ! GITHUB_PAT=$(aws secretsmanager get-secret-value \
         --secret-id monorepo/github-pat \
@@ -189,7 +192,7 @@ else
     --custom-rules "$CUSTOM_RULES" \
     --region "$AWS_REGION" \
     --query "app.appId" --output text)
-  unset GITHUB_PAT
+  unset GITHUB_PAT  # remove from environment after use
   echo "  App id: $APP_ID"
 fi
 
@@ -207,6 +210,8 @@ else
 fi
 
 # ---- 4. Domain association ----
+# Amplify auto-creates the Route 53 CNAME for $SUBDOMAIN.$HOSTED_ZONE_NAME when
+# the hosted zone is in this account. No manual route53 update needed.
 if aws amplify get-domain-association --app-id "$APP_ID" --domain-name "$HOSTED_ZONE_NAME" --region "$AWS_REGION" >/dev/null 2>&1; then
   echo "↷ Domain association for $HOSTED_ZONE_NAME exists; leaving it alone."
 else
@@ -219,44 +224,8 @@ else
     --region "$AWS_REGION" >/dev/null
 fi
 
-# ---- 5. Wait for Amplify to publish the CNAME target ----
-echo "→ Waiting for Amplify to publish the DNS record..."
-DNS_RECORD=""
-for i in {1..30}; do
-  DNS_RECORD=$(aws amplify get-domain-association \
-    --app-id "$APP_ID" --domain-name "$HOSTED_ZONE_NAME" --region "$AWS_REGION" \
-    --query "domainAssociation.subDomains[?subDomainSetting.prefix=='$SUBDOMAIN'].dnsRecord | [0]" \
-    --output text 2>/dev/null || true)
-  if [ -n "$DNS_RECORD" ] && [ "$DNS_RECORD" != "None" ]; then break; fi
-  sleep 5
-done
-if [ -z "$DNS_RECORD" ] || [ "$DNS_RECORD" == "None" ]; then
-  echo "✗ Timed out waiting for the DNS record. Check the Amplify Console:" >&2
-  echo "  https://us-east-1.console.aws.amazon.com/amplify/home?region=us-east-1#/$APP_ID/domain-management" >&2
-  exit 1
-fi
-CNAME_TARGET=$(echo "$DNS_RECORD" | awk '{print $3}')
-
-# ---- 6. Route 53 CNAME ----
-echo "→ Creating Route 53 CNAME: $SUBDOMAIN.$HOSTED_ZONE_NAME → $CNAME_TARGET..."
-CHANGE_BATCH=$(cat <<EOF
-{
-  "Changes": [{
-    "Action": "UPSERT",
-    "ResourceRecordSet": {
-      "Name": "$SUBDOMAIN.$HOSTED_ZONE_NAME",
-      "Type": "CNAME",
-      "TTL": 300,
-      "ResourceRecords": [{"Value": "$CNAME_TARGET"}]
-    }
-  }]
-}
-EOF
-)
-aws route53 change-resource-record-sets --hosted-zone-id "$HOSTED_ZONE_ID" --change-batch "$CHANGE_BATCH" >/dev/null
-
-# ---- 7. Push database schema + tables ----
-echo "→ Running 'npm run db:push' (create schema, push tables, refresh backend)..."
+# ---- 5. Push database schema + tables ----
+echo "→ Running 'npm run db:push' (create schema, push tables, verify, refresh backend)..."
 npm run db:push
 
 # ---- Summary ----
@@ -267,8 +236,8 @@ cat <<EOF
   App ID:      $APP_ID
   App URL:     https://$SUBDOMAIN.$HOSTED_ZONE_NAME
   S3 bucket:   s3://$BUCKET
-  CNAME:       $SUBDOMAIN.$HOSTED_ZONE_NAME → $CNAME_TARGET
-  Database:    schema + tables pushed, backend refreshed
+  DNS:         Amplify auto-creates $SUBDOMAIN.$HOSTED_ZONE_NAME CNAME (typically ~30s)
+  Database:    schema + tables pushed, verified, backend refreshed
 
 Next:
   1. Push a commit to 'main' to trigger the first build. Amplify will run

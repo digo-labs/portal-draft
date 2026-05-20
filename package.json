@@ -11,7 +11,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "provision": "./scripts/provision.sh",
-    "db:push": "node scripts/create-schema.js && drizzle-kit push && node scripts/refresh-schemas.js",
+    "db:push": "node scripts/create-schema.js && drizzle-kit push && node scripts/verify-tables.js && node scripts/refresh-schemas.js",
     "db:seed": "tsx scripts/seed.ts",
     "update:digo-labs": "npm install --prefer-online @digo-labs/app@latest @digo-labs/common@latest @digo-labs/services@latest @digo-labs/ui@latest"
   },
