@@ -166,15 +166,30 @@ APP_ID=$(aws amplify list-apps --region "$AWS_REGION" --query "apps[?name=='$APP
 if [ -n "$APP_ID" ] && [ "$APP_ID" != "None" ]; then
   echo "↷ Amplify app '$APP_NAME' exists (id $APP_ID); leaving it alone."
 else
+  echo "→ Fetching GitHub PAT from AWS Secrets Manager..."
+  if ! GITHUB_PAT=$(aws secretsmanager get-secret-value \
+        --secret-id monorepo/github-pat \
+        --region "$AWS_REGION" \
+        --query SecretString --output text 2>&1); then
+    echo "✗ Failed to read secret monorepo/github-pat:" >&2
+    echo "  $GITHUB_PAT" >&2
+    echo "" >&2
+    echo "  Your AWS profile may not have 'secretsmanager:GetSecretValue' permission" >&2
+    echo "  on monorepo/github-pat. Ask the admin to add it to the Developers IAM group." >&2
+    exit 1
+  fi
+
   echo "→ Creating Amplify app '$APP_NAME'..."
   APP_ID=$(aws amplify create-app \
     --name "$APP_NAME" \
     --repository "$REPO_URL" \
+    --access-token "$GITHUB_PAT" \
     --platform WEB \
     --build-spec "$BUILD_SPEC" \
     --custom-rules "$CUSTOM_RULES" \
     --region "$AWS_REGION" \
     --query "app.appId" --output text)
+  unset GITHUB_PAT
   echo "  App id: $APP_ID"
 fi
 
