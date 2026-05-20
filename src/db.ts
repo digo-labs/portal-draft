@@ -6,7 +6,7 @@ export interface WPEntry {
   percentage: number;
 }
 
-export const { tables, databases } = defineDatabases('portal_draft', {
+export const { tables, databases, schema } = defineDatabases('portal_draft', {
   users: {
     id: text('id').primaryKey(),
     name: text('name').notNull(),

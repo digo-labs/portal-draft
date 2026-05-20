@@ -21,7 +21,7 @@
     }
   },
   "dependencies": {
-    "@digo-labs/app": "^0.1.9",
+    "@digo-labs/app": "^0.1.10",
     "@digo-labs/common": "^0.1.9",
     "@digo-labs/services": "^0.1.9",
     "@digo-labs/ui": "^0.1.10",
