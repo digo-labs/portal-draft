@@ -1,4 +1,4 @@
-import { defineDatabases } from '@digo-labs/app';
+import { defineDatabases } from '@digo-labs/app/database';
 import { boolean, integer, jsonb, text } from 'drizzle-orm/pg-core';
 
 export interface WPEntry {
