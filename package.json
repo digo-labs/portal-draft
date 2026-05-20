@@ -21,10 +21,10 @@
     }
   },
   "dependencies": {
-    "@digo-labs/app": "^0.1.7",
-    "@digo-labs/common": "^0.1.8",
-    "@digo-labs/services": "^0.1.8",
-    "@digo-labs/ui": "^0.1.9",
+    "@digo-labs/app": "^0.1.8",
+    "@digo-labs/common": "^0.1.9",
+    "@digo-labs/services": "^0.1.9",
+    "@digo-labs/ui": "^0.1.10",
     "@mdx-js/react": "^3.1.1",
     "@preact/signals-react": "^3.10.1",
     "drizzle-orm": "^0.45.2",
